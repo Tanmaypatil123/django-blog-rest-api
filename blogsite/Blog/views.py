@@ -70,3 +70,27 @@ def blog_all_view(request,pk=None,*args,**kwargs):
             serializer.save(content=content)
             return Response(serializer.data)
         return Response({"invalid": "not good data"}, status=400)     
+
+class BlogUpdateAPIView(generics.UpdateAPIView):
+    queryset = Blog.objects.all()  
+    serializer_class =BlogSerializers
+    lookup_field = 'pk'
+
+    def perform_update(self,serializer):
+        instance = serializer.save() 
+        if not instance.content:
+            instance.content = instance.title 
+
+blog_update_view = BlogUpdateAPIView.as_view()
+
+
+class BlogDeleteAPIView(generics.DestroyAPIView):
+    queryset = Blog.objects.all()  
+    serializer_class =BlogSerializers
+    lookup_field = 'pk'
+
+    def perform_delete(self,instance):
+        super().perform_destroy(instance)
+
+
+blog_delete_api_view = BlogDeleteAPIView.as_view()        
