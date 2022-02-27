@@ -1,6 +1,6 @@
 import requests
 
-endpoint = "http://localhost:8000/api/blogs/2/" 
+endpoint = "http://localhost:8000/api/blogs/4/" 
 
 get_response = requests.get(endpoint) 
 print(get_response.json())

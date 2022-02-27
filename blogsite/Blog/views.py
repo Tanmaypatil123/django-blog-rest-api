@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from .models import Blog
 from .serializers import BlogSerializers
 from rest_framework.response import Response
+from rest_framework import mixins
 # Create your views here.
 class BlogDetailAPIView(generics.RetrieveAPIView):
     queryset = Blog.objects.all()
@@ -93,4 +94,33 @@ class BlogDeleteAPIView(generics.DestroyAPIView):
         super().perform_destroy(instance)
 
 
-blog_delete_api_view = BlogDeleteAPIView.as_view()        
+blog_delete_api_view = BlogDeleteAPIView.as_view()  
+
+
+class BlogMixinView(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    generics.GenericAPIView
+):
+    queryset = Blog.objects.all()
+    serializer_class = BlogSerializers
+    lookup_field = 'pk'
+
+    def get(self,request,*args,**kwargs):
+        pk = kwargs.get("pk")
+        if pk is not None:
+            return self.retrieve(request,*args,**kwargs)
+        return self.list(request,*args,**kwargs)   
+
+    def post(self,request,*args,**kwargs):
+        return self.create(request,*args,**kwargs)
+
+    def perform_create(self,serializer):         
+        title = serializer.validated_data.get('title')
+        content = serializer.validated_data.get('content') or None
+        if content is None:
+            content = title
+        serializer.save(content=content)    
+
+blog_mixins_view = BlogMixinView.as_view()
