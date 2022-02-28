@@ -8,6 +8,7 @@ from .models import Blog
 from .serializers import BlogSerializers
 from rest_framework.response import Response
 from rest_framework import mixins
+from api.authentication import TokenAuthentication
 # Create your views here.
 class BlogDetailAPIView(generics.RetrieveAPIView):
     queryset = Blog.objects.all()
@@ -39,7 +40,10 @@ blog_list_view = BlogListAPIView.as_view()
 class BlogCreateListAPIView(generics.ListCreateAPIView):
     queryset = Blog.objects.all()
     serializer_class =BlogSerializers
-    authentication_classes = [authentication.SessionAuthentication]
+    authentication_classes = [
+        authentication.SessionAuthentication,
+        TokenAuthentication
+    ]
     permission_classes = [permissions.IsAdminUser, IsStaffEditorPermission]
 
     def perform_create(self,serializer):
