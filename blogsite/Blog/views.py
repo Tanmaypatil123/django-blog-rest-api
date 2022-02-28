@@ -1,5 +1,7 @@
+from venv import create
 from django.shortcuts import render
-from rest_framework import generics
+from rest_framework import generics,authentication,permissions
+from .permissions import IsStaffEditorPermission
 from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404
 from .models import Blog
@@ -37,8 +39,10 @@ blog_list_view = BlogListAPIView.as_view()
 class BlogCreateListAPIView(generics.ListCreateAPIView):
     queryset = Blog.objects.all()
     serializer_class =BlogSerializers
+    authentication_classes = [authentication.SessionAuthentication]
+    permission_classes = [permissions.IsAdminUser, IsStaffEditorPermission]
 
-    def create_blog(self,serializer):
+    def perform_create(self,serializer):
         title = serializer.validated_data.get('title')
         content = serializer.validated_data.get('content') or None
         if content is None:
